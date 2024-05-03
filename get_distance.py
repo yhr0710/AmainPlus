@@ -19,7 +19,7 @@ class DistanceCalculator:
             else:
                 list_name.append(file_path)
 
-    def get_distance(self, ori, out, npy_path):
+    def get_distance(self, ori, out, npy_path, feature_number):
         """
             Calculates and stores multiple distance metrics between pairs of files specified in a CSV file.
             This function processes each pair of file names in the CSV, checks if their corresponding .npy
@@ -41,6 +41,15 @@ class DistanceCalculator:
 
         exc = []
         reader = csv.reader(open(ori, 'r'))
+
+        weightorder = []
+        with open('weight1.txt', 'r') as f:
+            lines = f.readlines()[:400]
+            for line in lines:
+                value = line.split()[1]
+                weightorder.append(int(value))
+        print(weightorder)
+        print(len(weightorder))
 
         for r in reader:
             # Extract filenames from the first two columns of the CSV and strip the '.java' suffix
@@ -74,13 +83,13 @@ class DistanceCalculator:
                     manhattan.append(man[i][i])
                     chebyshev.append(che[i][i])
 
-                data = [f1, f2] + cosine + euclidean + manhattan + chebyshev
-                exc.append(data)  # Append the computed data to the list
+                data = cosine + euclidean + manhattan + chebyshev
+                extracted_data = [data[i] for i in weightorder if i < len(data)]
+                exc.append(extracted_data)  # Append the computed data to the list
 
                 print(j)  # Print the current count
                 j += 1
 
-                exc.append(data)  # Append the computed data to the list
 
         # print(len(exc[0]))
         # Write all computed distances to a new CSV file named based on the 'out' parameter
