@@ -4,8 +4,6 @@ from javalang.ast import Node
 from anytree import AnyNode
 import time
 import os
-from multiprocessing import Pool
-from functools import partial
 
 
 # 非叶子节点代码语法类型
@@ -228,12 +226,7 @@ class JavaSyntaxMatrixGenerator:
 
         return list(expand(children))
 
-    # 创建树结构
-    # root:根节点
-    # node:当前节点
-    # nodelist:节点列表
-    # parent:父节点
-    # 每个节点(AnyNode)都是用唯一的标识符(id)、标记(token)、数据(data)和父节点(parent)
+
     def createtree(self, root, node, nodelist, parent=None):
         """
             Recursively creates a tree structure from an AST node using the AnyNode class. Each node in the
@@ -302,7 +295,8 @@ class JavaSyntaxMatrixGenerator:
                 yield from self.traverse(child, typedict, triads, path)
             path.pop()
 
-    def one_matrix(self, path, npy_path):
+    # Generate a second-order Markov matrix.
+    def second_order_matrix(self, path, npy_path):
         """
            Generates a matrix representation of the syntactic and structural patterns in a Java source file.
 
@@ -335,7 +329,7 @@ class JavaSyntaxMatrixGenerator:
 
         # # Traverse the tree to collect triads
         triads = []
-        list(self.traverse(newtree, typedict, triads))
+        list(self.traverse(newtree, typedict, triads, path=None))
         print(triads)
 
         # Initialize a matrix of zeros with dimensions 493x72
@@ -369,22 +363,21 @@ class JavaSyntaxMatrixGenerator:
         np.save(npypath, matrix)
         return matrix
 
-    def allmain(self, javapath, npy_path):
+    def allmain(self):
         """
             Main method to read all Java files from a folder and generate matrices for each file.
         """
         # Read all java files from a folder
         j = 0
         javalist = []
-        self.listdir(javapath, javalist)
+        self.listdir(self.javapath, javalist)
         for javafile in javalist:
             try:
-                self.one_matrix(javafile, npy_path)
+                self.second_order_matrix(javafile, self.npy_path)
             except (UnicodeDecodeError, javalang.parser.JavaSyntaxError, javalang.tokenizer.LexerError):
                 print(javafile)
             j += 1
             print(j)
-
 
 
 if __name__ == '__main__':
@@ -392,7 +385,6 @@ if __name__ == '__main__':
     javapath = '/home/data4T/wym/fsl/markovchain/GCJdataset/'
     npy_path = './npy/'
     syntax_matrix_generator = JavaSyntaxMatrixGenerator(javapath, npy_path)
-    syntax_matrix_generator.allmain()
 
 
 

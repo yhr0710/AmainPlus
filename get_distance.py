@@ -90,8 +90,6 @@ class DistanceCalculator:
                 print(j)  # Print the current count
                 j += 1
 
-
-        # print(len(exc[0]))
         # Write all computed distances to a new CSV file named based on the 'out' parameter
         with open(out + '_4_dis.csv', 'w', newline='') as csvfile0:
             writer = csv.writer(csvfile0)
