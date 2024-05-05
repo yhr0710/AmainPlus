@@ -2,11 +2,11 @@ import numpy as np
 import javalang
 from javalang.ast import Node
 from anytree import AnyNode
-import time
 import os
+import time
 
 
-# 非叶子节点代码语法类型
+# Non-leaf node syntactic type dict
 nodetypedict = {'MethodDeclaration': 0, 'Modifier': 1, 'FormalParameter': 2, 'ReferenceType': 3, 'BasicType': 4,
      'LocalVariableDeclaration': 5, 'VariableDeclarator': 6, 'MemberReference': 7, 'ArraySelector': 8, 'Literal': 9,
      'BinaryOperation': 10, 'TernaryExpression': 11, 'IfStatement': 12, 'BlockStatement': 13, 'StatementExpression': 14,
@@ -21,12 +21,12 @@ nodetypedict = {'MethodDeclaration': 0, 'Modifier': 1, 'FormalParameter': 2, 'Re
      'ContinueStatement': 51, 'ClassDeclaration': 52, 'TryResource': 53, 'MethodReference': 54,
      'LambdaExpression': 55, 'InferredFormalParameter': 56}
 
-# 叶子节点token类型
+# Leaf node token type dict
 tokendict = {'DecimalInteger': 57, 'HexInteger': 58, 'Identifier': 59, 'Keyword': 60, 'Modifier': 61, 'Null': 62,
               'OctalInteger': 63, 'Operator': 64, 'Separator': 65, 'String': 66, 'Annotation': 67, 'BasicType': 68,
               'Boolean': 69, 'DecimalFloatingPoint': 70, 'HexFloatingPoint': 71}
 
-# 两元组字典
+# Pair tuple node dictionary
 node2groups = {'FieldDeclaration2Modifier': 0, 'FieldDeclaration2ReferenceType': 1,'FieldDeclaration2VariableDeclarator': 2, 'VariableDeclarator2Literal': 3,
           'ClassDeclaration2Modifier': 4, 'ClassDeclaration2MethodDeclaration': 5,'MethodDeclaration2Modifier': 6,
           'MethodDeclaration2FormalParameter': 7, 'FormalParameter2ReferenceType': 8, 'MethodDeclaration2LocalVariableDeclaration': 9, 'LocalVariableDeclaration2ReferenceType': 10,
@@ -120,25 +120,26 @@ class JavaSyntaxMatrixGenerator:
         self.javapath = javapath
         self.npy_path = npy_path
 
-    def listdir(self, path, list_name):
+    def listdir(self, path):
         """
-            Recursively lists all files in the specified directory and subdirectories.
+        Recursively lists all files in the specified directory and subdirectories.
 
-            Args:
-            path (str): The directory path to list files from.
-            list_name (list): The list where all file paths are accumulated.
+        Args:
+        path (str): The directory path to list files from.
 
-            Returns:
-            None: This function modifies the list_name in-place and does not return anything.
-            """
+        Returns:
+        list: A list of all file paths accumulated.
+           """
+        javalist = []
         for file in os.listdir(path):
             file_path = os.path.join(path, file)
             if os.path.isdir(file_path):
-                self.listdir(file_path, list_name)
+                javalist.extend(self.listdir(file_path))
             else:
-                list_name.append(file_path)
+                javalist.append(file_path)
+        return javalist
 
-    def getast(self, path):
+    def get_ast(self, path):
         """
             Read a Java source code file, tokenize it, parse it to create an AST, and print the AST.
 
@@ -148,22 +149,17 @@ class JavaSyntaxMatrixGenerator:
             Returns:
             programast: The AST of the parsed Java member declaration.
             """
-        # 打开文件并读取文本
         programfile = open(path, encoding='utf-8')
-        print(programfile)
         programtext = programfile.read()
-        print(programtext)
         programfile.close()
 
-        # 对读取的文本进行词法分析
+        # Perform lexical analysis on the read text
         programtokens = javalang.tokenizer.tokenize(programtext)
         token_list = list(programtokens)
-        print(token_list)
 
-        # 解析tokens生成AST
-        parser = javalang.parse.Parser(token_list)  # 注意这里要传入列表
+        # Parse tokens to generate AST
+        parser = javalang.parse.Parser(token_list)
         programast = parser.parse_member_declaration()
-        print(programast)
 
         return programast, token_list
 
@@ -187,11 +183,9 @@ class JavaSyntaxMatrixGenerator:
             token = 'Modifier'
         elif isinstance(node, Node):  # Use the class name of the node for more specific nodes
             token = node.__class__.__name__
-        # print(node.__class__.__name__,str(node))
-        # print(node.__class__.__name__, node)
         return token
 
-    # 得到节点的子节点列表
+    # Get the list of child nodes for the node
     def get_child(self, root):
         """
             Extracts and returns all child nodes from a given AST node, handling different types
@@ -213,7 +207,7 @@ class JavaSyntaxMatrixGenerator:
         else:
             children = []
 
-        # 展开列表中任何嵌套的子节点
+        # Expand any nested child nodes within the list
         def expand(nested_list):
             for item in nested_list:
                 if isinstance(item, list):
@@ -227,7 +221,7 @@ class JavaSyntaxMatrixGenerator:
         return list(expand(children))
 
 
-    def createtree(self, root, node, nodelist, parent=None):
+    def create_tree(self, root, node, nodelist, parent=None):
         """
             Recursively creates a tree structure from an AST node using the AnyNode class. Each node in the
             created tree corresponds to an AST node and is added to a tree with parent-child relationships.
@@ -243,9 +237,9 @@ class JavaSyntaxMatrixGenerator:
             """
         id = len(nodelist)
         # print(id)
-        # 获取当前节点对的标记和子节点列表
+        # Retrieve the token and list of child nodes for the current node pair
         token, children = self.get_token(node), self.get_child(node)
-        # 如果是列表中第一个节点，则将其作为根节点的token和data
+        # If it is the first node in the list, set it as the root node's token and data
         if id == 0:
             root.token = token
             root.data = node
@@ -254,9 +248,9 @@ class JavaSyntaxMatrixGenerator:
         nodelist.append(node)
         for child in children:
             if id == 0:
-                self.createtree(root, child, nodelist, parent=root)
+                self.create_tree(root, child, nodelist, parent=root)
             else:
-                self.createtree(root, child, nodelist, parent=newnode)
+                self.create_tree(root, child, nodelist, parent=newnode)
 
     def traverse(self, node, typedict, triads, path=None):
         """
@@ -271,7 +265,7 @@ class JavaSyntaxMatrixGenerator:
 
            Yields:
            list: The complete token path for each leaf node encountered during the traversal.
-        """
+           """
         if path is None:
             path = []
         if len(node.children) == 0:
@@ -306,13 +300,17 @@ class JavaSyntaxMatrixGenerator:
            Returns:
            np.ndarray: A matrix where each entry represents normalized counts of specific syntactic patterns.
         """
+        if not os.path.exists(npy_path):
+            os.makedirs(npy_path)
+            print(f"Created directory {npy_path}")
+
         # ast generation
-        tree, tokens = self.getast(path)
+        tree, tokens = self.get_ast(path)
 
         # create tree
         nodelist = []
         newtree = AnyNode(id=0, token=None, data=None)
-        self.createtree(newtree, tree, nodelist)
+        self.create_tree(newtree, tree, nodelist)
 
         # token type dictionary
         # Create a dictionary mapping token values to their types
@@ -325,16 +323,15 @@ class JavaSyntaxMatrixGenerator:
             else:
                 if typedict[token_value] != token_type:
                     print('!!!!!!!!')
-        print(typedict)
 
         # # Traverse the tree to collect triads
         triads = []
         list(self.traverse(newtree, typedict, triads, path=None))
-        print(triads)
 
         # Initialize a matrix of zeros with dimensions 493x72
         matrix = [[0 for col in range(72)] for row in range(493)]
 
+        # Obtain the state transition matrix
         for i in range(len(triads)):
             m = node2groups[triads[i][0] + '2' + triads[i][1]]
             name = triads[i][2]
@@ -347,6 +344,7 @@ class JavaSyntaxMatrixGenerator:
                     n = 62
             matrix[m][n] += 1
 
+        # Obtain the state transition probability matrix
         for k in range(493):
             total = 0
             for l in range(72):
@@ -358,8 +356,9 @@ class JavaSyntaxMatrixGenerator:
         # Serialize and save the matrix to a file
         matrix = np.array(matrix)
         # Extract the filename from the file path, remove the .java extension, and obtain the filename.
-        filename = path.split('/')[-1].split('.java')[0]
+        filename = os.path.basename(path)
         npypath = npy_path + filename
+        # print(npypath)
         np.save(npypath, matrix)
         return matrix
 
@@ -369,8 +368,7 @@ class JavaSyntaxMatrixGenerator:
         """
         # Read all java files from a folder
         j = 0
-        javalist = []
-        self.listdir(self.javapath, javalist)
+        javalist = self.listdir(self.javapath)
         for javafile in javalist:
             try:
                 self.second_order_matrix(javafile, self.npy_path)
@@ -382,10 +380,10 @@ class JavaSyntaxMatrixGenerator:
 
 if __name__ == '__main__':
     # Example usage:
-    javapath = '/home/data4T/wym/fsl/markovchain/GCJdataset/'
+    javapath = './GCJ_datasets_samples'
     npy_path = './npy/'
     syntax_matrix_generator = JavaSyntaxMatrixGenerator(javapath, npy_path)
-
-
-
-
+    a = time.time()
+    syntax_matrix_generator.allmain()
+    b = time.time()
+    print(b-a)
