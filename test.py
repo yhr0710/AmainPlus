@@ -14,7 +14,7 @@ import numpy as np
 #     print(f2)
 
 weightorder = []
-with open('weight1.txt', 'r') as f:
+with open('weight.txt', 'r') as f:
     lines = f.readlines()[:456]
     for line in lines:
         value = line.split()[1]

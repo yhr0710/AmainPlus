@@ -50,7 +50,7 @@ class FeatureClassification:
             tuple: A tuple containing two lists:
                    - Vectors: A list of feature vectors where each vector is a list of floats.
                    - Labels: A list of integers where each integer is a label (1 for 'clone', 0 for 'non-clone').
-        """
+             """
 
         clone_features = self.feature_extraction_order(self.clonefeature_csv)
         nonclone_features = self.feature_extraction_order(self.nonclonefeature_csv)
@@ -107,6 +107,7 @@ class FeatureClassification:
             Returns:
             list: A list containing the mean F1 score, mean precision, and mean recall from the 10 folds.
         """
+        print("begin")
         kf = KFold(n_splits=10)
         F1s = []
         Precisions = []
@@ -160,5 +161,5 @@ class FeatureClassification:
 
 
 if __name__ == '__main__':
-    processor = FeatureClassification("GCJ_order_clone_4_sim.csv", "GCJ_order_nonclone_4_sim.csv")
+    processor = FeatureClassification("BCB_clone_sample_4_dis.csv", "BCB_nonclone_sample_4_dis.csv")
     processor.run()

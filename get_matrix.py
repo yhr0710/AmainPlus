@@ -116,8 +116,8 @@ node2groups = {'FieldDeclaration2Modifier': 0, 'FieldDeclaration2ReferenceType':
 
 
 class JavaSyntaxMatrixGenerator:
-    def __init__(self, javapath, npy_path):
-        self.javapath = javapath
+    def __init__(self, java_path, npy_path):
+        self.java_path = java_path
         self.npy_path = npy_path
 
     def listdir(self, path):
@@ -368,21 +368,21 @@ class JavaSyntaxMatrixGenerator:
         """
         # Read all java files from a folder
         j = 0
-        javalist = self.listdir(self.javapath)
+        javalist = self.listdir(self.java_path)
         for javafile in javalist:
             try:
                 self.second_order_matrix(javafile, self.npy_path)
             except (UnicodeDecodeError, javalang.parser.JavaSyntaxError, javalang.tokenizer.LexerError):
                 print(javafile)
             j += 1
-            print(j)
+            print(f"Number of Java files converted to a matrix: {j}")
 
 
 if __name__ == '__main__':
     # Example usage:
-    javapath = './GCJ_datasets_samples'
+    java_path = './BCB_datasets_samples'
     npy_path = './npy/'
-    syntax_matrix_generator = JavaSyntaxMatrixGenerator(javapath, npy_path)
+    syntax_matrix_generator = JavaSyntaxMatrixGenerator(java_path, npy_path)
     a = time.time()
     syntax_matrix_generator.allmain()
     b = time.time()
