@@ -5,9 +5,9 @@ from sklearn.metrics.pairwise import cosine_similarity, pairwise_distances
 
 
 class DistanceCalculator:
-    def __init__(self, ori, out, npy_path, feature_number=400):
+    def __init__(self, ori, npy_path='./npy/', feature_number=400):
         self.ori = ori
-        self.out = out
+        self.out = os.path.splitext(os.path.basename(ori))[0]
         self.npy_path = npy_path
         self.feature_number = feature_number
 
@@ -108,18 +108,15 @@ class DistanceCalculator:
 
                 print(j)  # Print the current count
                 j += 1
-
-                if j > 1000:
-                    # Write all computed distances to a new CSV file named based on the 'out' parameter
-                    with open(self.out + '_4_dis.csv', 'w', newline='') as csvfile0:
-                        writer = csv.writer(csvfile0)
-                        for row in exc:
-                            writer.writerow(row)
-                    break
+        # Write all computed distances to a new CSV file named based on the 'out' parameter
+        with open(self.out + '_4_dis.csv', 'w', newline='') as csvfile0:
+            writer = csv.writer(csvfile0)
+            for row in exc:
+                writer.writerow(row)
 
 
 if __name__ == '__main__':
-    calc = DistanceCalculator('./Clone_type/BCB_nonclone.csv', './BCB_nonclone_sample', './npy/')
+    calc = DistanceCalculator('./Clone_type/BCB_nonclone.csv')
     calc.get_distance()
 
 

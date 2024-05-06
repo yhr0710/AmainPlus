@@ -8,7 +8,7 @@ import json
 
 
 class JavaSyntaxMatrixGenerator:
-    def __init__(self, java_path, npy_path, json_path='type.json'):
+    def __init__(self, java_path, npy_path='./npy/', json_path='type.json'):
         self.java_path = java_path
         self.npy_path = npy_path
         self.nodetypedict, self.tokendict, self.node2groups = self.load_dictionaries_from_json(json_path)
@@ -279,8 +279,7 @@ class JavaSyntaxMatrixGenerator:
 if __name__ == '__main__':
     # Example usage:
     java_path = './BCB_datasets_samples'
-    npy_path = './npy_BCB/'
-    syntax_matrix_generator = JavaSyntaxMatrixGenerator(java_path, npy_path)
+    syntax_matrix_generator = JavaSyntaxMatrixGenerator(java_path)
     a = time.time()
     syntax_matrix_generator.allmain()
     b = time.time()
