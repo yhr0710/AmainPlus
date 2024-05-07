@@ -68,8 +68,8 @@ class DistanceCalculator:
                     continue  # Skip rows that do not have at least two filenames
 
                 # Extract filenames from the first two columns of the CSV and strip the '.java' suffix safely
-                f1 = r[0].rsplit('.java', 1)[0]  # Splits only on the last occurrence of '.java'
-                f2 = r[1].rsplit('.java', 1)[0]
+                f1 = r[0].split('.java')[0]
+                f2 = r[1].split('.java')[0]
 
                 # Construct the paths to the corresponding .npy files using os.path.join for better path handling
                 file1 = os.path.join(self.npy_path, f1 + '.npy')
