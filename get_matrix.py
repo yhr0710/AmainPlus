@@ -254,7 +254,7 @@ class JavaSyntaxMatrixGenerator:
         # Serialize and save the matrix to a file
         matrix = np.array(matrix)
         # Extract the filename from the file path, remove the .java extension, and obtain the filename.
-        filename = os.path.basename(path)
+        filename = os.path.splitext(os.path.basename(path))[0]
         npypath = npy_path + filename
         # print(npypath)
         np.save(npypath, matrix)
