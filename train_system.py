@@ -1,8 +1,8 @@
 import os
 import time
-from get_matrix import JavaSyntaxMatrixGenerator
-from get_distance import DistanceCalculator
-from classification import FeatureClassification
+from Train.get_matrix import JavaSyntaxMatrixGenerator
+from Train.get_distance import DistanceCalculator
+from Train.classification import FeatureClassification
 
 
 class TrainSystem:

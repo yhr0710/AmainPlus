@@ -278,7 +278,7 @@ class JavaSyntaxMatrixGenerator:
 
 if __name__ == '__main__':
     # Example usage:
-    java_path = './BCB_datasets_samples'
+    java_path = '../BCB_datasets_samples'
     syntax_matrix_generator = JavaSyntaxMatrixGenerator(java_path)
     a = time.time()
     syntax_matrix_generator.allmain()
