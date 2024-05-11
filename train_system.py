@@ -6,13 +6,12 @@ from Train.classification import FeatureClassification
 
 
 class TrainSystem:
-    def __init__(self, java_path, clone_path, nonclone_path, feature_number=400, npy_path='./npy/', json_path='type.json'):
+    def __init__(self, java_path, clone_path, nonclone_path, npy_path='./npy/', json_path='type.json'):
         self.java_path = java_path
         self.clone_path = clone_path
         self.nonclone_path = nonclone_path
         self.npy_path = npy_path
         self.json_path = json_path
-        self.feature_number = feature_number
         self.clone_feature_csv = os.path.splitext(os.path.basename(clone_path))[0]
         self.nonclone_feature_csv = os.path.splitext(os.path.basename(nonclone_path))[0]
 
@@ -26,9 +25,9 @@ class TrainSystem:
     def calculate_distances(self):
         print("Calculating distances...")
         start_time = time.time()
-        distance_calculator = DistanceCalculator(self.clone_path, self.npy_path, self.feature_number)
+        distance_calculator = DistanceCalculator(self.clone_path, self.npy_path)
         distance_calculator.get_distance()
-        distance_calculator = DistanceCalculator(self.nonclone_path, self.npy_path, self.feature_number)
+        distance_calculator = DistanceCalculator(self.nonclone_path, self.npy_path)
         distance_calculator.get_distance()
         print("Distance calculations completed in {:.2f} seconds.".format(time.time() - start_time))
 
