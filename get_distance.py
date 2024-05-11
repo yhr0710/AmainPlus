@@ -5,11 +5,10 @@ from sklearn.metrics.pairwise import cosine_similarity, pairwise_distances
 
 
 class DistanceCalculator:
-    def __init__(self, ori, npy_path='./npy/', feature_number=400):
+    def __init__(self, ori, npy_path='./npy/'):
         self.ori = ori
         self.out = os.path.splitext(os.path.basename(ori))[0]
         self.npy_path = npy_path
-        self.feature_number = feature_number
 
     def listdir(self, path):
         """
@@ -45,15 +44,6 @@ class DistanceCalculator:
             Returns:
             None: This function writes results to a CSV file and does not return any value.
             """
-        weightorder = []
-        with open('weight.txt', 'r') as f:
-            lines = f.readlines()[:self.feature_number]
-            for line in lines:
-                value = line.split()[1]
-                weightorder.append(int(value))
-        print(weightorder)
-        print(len(weightorder))
-
         # Recursively list all .npy files in the given directory and subdirectories
         existnpy = self.listdir(self.npy_path)
         j = 0
@@ -81,8 +71,8 @@ class DistanceCalculator:
             if file1 in existnpy and file2 in existnpy:
 
                 # Load the .npy files if they exist
-                matrix1 = np.load(file1)
-                matrix2 = np.load(file2)
+                matrix1 = np.load(file1).T
+                matrix2 = np.load(file2).T
 
                 # Calculate cosine similarity, Euclidean, Manhattan, and Chebyshev distances
                 cos = cosine_similarity(matrix1, matrix2)
@@ -103,8 +93,7 @@ class DistanceCalculator:
                     chebyshev.append(che[i][i])
 
                 data = cosine + euclidean + manhattan + chebyshev
-                extracted_data = [data[i] for i in weightorder if i < len(data)]
-                exc.append(extracted_data)  # Append the computed data to the list
+                exc.append(data)  # Append the computed data to the list
 
                 print(j)  # Print the current count
                 j += 1
